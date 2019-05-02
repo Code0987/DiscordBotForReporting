@@ -1,0 +1,16 @@
+{
+  "name": "bot",
+  "version": "1.0.0",
+  "description": "A bot.",
+  "main": "bot.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node bot.js"
+  },
+  "author": "code0987",
+  "license": "Private",
+  "dependencies": {
+    "discord.js": "^11.4.2",
+    "node-persist": "^2.1.0"
+  }
+}
