@@ -20,7 +20,11 @@ var re_report_format = new RegExp(
   , "gim");
 
 exports.valid = (text) => {
-  return re_report_format.test(text);
+  re_report_format.lastIndex = 0;
+
+  var isit = re_report_format.test(text);
+
+  return isit;
 };
 
 exports.valid2 = (text) => {

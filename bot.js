@@ -133,7 +133,7 @@ client.on("message", msg => {
   console.debug("[" + c + "] " + u + ": " + m);
 
   // process commands
-  if (m && m.startsWith(client.config.PREFIX)) {
+  if (!msg.author.bot && m && m.startsWith(client.config.PREFIX)) {
     var args = m.substring(client.config.PREFIX.length).split(" ");
     var cmdName = args[0].toLowerCase();
 
@@ -157,11 +157,11 @@ client.on("message", msg => {
 
     // delete message
     if (client.config.MONITOR_CHANNELS.includes(msg.channel.id) && !msg.author.bot)
-      msg.delete();
+      msg.delete(1);
   }
 
   // process redirections
-  else if (m && client.config.MONITOR_CHANNELS.includes(msg.channel.id)) {
+  else if (!msg.author.bot && m && client.config.MONITOR_CHANNELS.includes(msg.channel.id)) {
 
     if (reporting.valid(m)) {
 
@@ -198,17 +198,24 @@ client.on("message", msg => {
         });
 
       } else {
+        console.debug("Not valid format. Sending help.");
 
-        msg.author.send(client.config.REPORT_WRONG_FORMAT_MSG);
-        msg.author.send(reporting.template());
+        var embed = new Discord.RichEmbed()
+          .setColor(9955331)
+          .setTitle(client.config.REPORT_WRONG_FORMAT_MSG)
+          .setDescription(reporting.template());
+
+        msg.author.send({ embed: embed });
 
       }
 
+    } else {
+      console.debug("Not valid. Ignoring");
     }
 
     // delete message
     if (!msg.author.bot)
-      msg.delete();
+      msg.delete(1);
   }
 
 });
