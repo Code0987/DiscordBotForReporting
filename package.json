@@ -8,7 +8,6 @@
     "start": "node bot.js"
   },
   "author": "code0987",
-  "license": "Private",
   "dependencies": {
     "discord.js": "^11.4.2",
     "node-persist": "^2.1.0"
