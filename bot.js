@@ -70,6 +70,7 @@ client.on("ready", () => {
 
 // Members
 
+/*
 client.on("guildMemberAdd", member => {
   var guild = member.guild;
   var channelToSend = null;
@@ -110,6 +111,7 @@ client.on("guildMemberRemove", member => {
 
   channelToSend.send(`${member.displayName} has left us.`);
 });
+*/
 
 // Messages
 
@@ -130,7 +132,7 @@ client.on("message", msg => {
     }
   });
 
-  console.debug("[" + c + "] " + u + ": " + m);
+  // console.debug("[" + c + "] " + u + ": " + m);
 
   // process commands
   if (!msg.author.bot && m && m.startsWith(client.config.PREFIX)) {
@@ -163,9 +165,9 @@ client.on("message", msg => {
   // process redirections
   else if (!msg.author.bot && m && client.config.MONITOR_CHANNELS.includes(msg.channel.id)) {
 
-    if (reporting.valid(m)) {
+    if (reporting.validReport(m)) {
 
-      if (reporting.valid2(m)) {
+      if (reporting.validReport2(m)) {
 
         client.config.REDIRECT_CHANNELS.forEach(id => {
           var redirectChannel = client.channels.get(id);
@@ -203,7 +205,7 @@ client.on("message", msg => {
         var embed = new Discord.RichEmbed()
           .setColor(9955331)
           .setTitle(client.config.REPORT_WRONG_FORMAT_MSG)
-          .setDescription(reporting.template());
+          .setDescription(reporting.getReportExample());
 
         msg.author.send({ embed: embed });
 

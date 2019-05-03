@@ -1,89 +1,101 @@
 const Discord = require('discord.js');
 
-var report_format =
-  "Reported Player Name: (Required)"
-  + "\nSteam ID of Reported Player: (Optional)"
-  + "\nOffense: (Required)"
-  + "\nYour Steam Name: (Required)"
-  + "\nYour Steam ID: (Required)"
-  + "\nSummary & Details: (Optional)";
+var report_fields = {
+  "Reported Player Name": true,
+  "Steam ID of Reported Player": false,
+  "Offense": true,
+  "Your Steam Name": true,
+  "Your Steam ID": true,
+  "Summary & Details": false
+};
 
-exports.template = () => { return report_format };
+var getReportExample = exports.getReportExample = () => {
+  var r = "";
 
-var re_report_format = new RegExp(
-  "(\\bReported Player Name\\b:(.*))"
-  + "(\\n\\bSteam ID of Reported Player\\b:(.*))?"
-  + "(\\n\\bOffense\\b:(.*))"
-  + "(\\n\\bYour Steam Name\\b:(.*))"
-  + "(\\n\\bYour Steam ID\\b:(.*))"
-  + "(\\n\\bSummary & Details\\b:(.*))?"
-  , "gim");
+  for (const key in report_fields) {
+    r += `${key}: ${report_fields[key] ? '(Required)' : '(Optional)'}\n`;
+  }
 
-exports.valid = (text) => {
-  re_report_format.lastIndex = 0;
+  // Remove last \n
+  r = r.trim();
 
-  var isit = re_report_format.test(text);
+  return r;
+};
+
+var getReportRegEx = exports.getReportRegEx = () => {
+  var r = "";
+
+  for (const key in report_fields) {
+    r += `(\\n?(\\b${key}\\b):(.*))${report_fields[key] ? '' : '?'}`;
+  }
+
+  return new RegExp(r, "gim");
+};
+
+exports.validReport = (text) => {
+  var re = getReportRegEx();
+  re.lastIndex = 0;
+
+  var isit = re.test(text);
 
   return isit;
 };
 
-exports.valid2 = (text) => {
-  re_report_format.lastIndex = 0;
+exports.validReport2 = (text) => {
+  var r = true;
 
-  var groups = re_report_format.exec(text);
+  // Extract keys and values
+  var re = getReportRegEx();
+  re.lastIndex = 0;
+  var groups = re.exec(text);
 
-  var reported = groups[2].trim();
-  var reportedId = groups[4].trim();
-  var offence = groups[6].trim();
-  var reporter = groups[8].trim();
-  var reporterId = groups[10].trim();
-  var details = groups[12].trim();
+  // Check each key
+  for (const key in report_fields) {
 
-  if (
-    !reported || reported.length == 0
-    ||
-    !offence || offence.length == 0
-    ||
-    !reporter || reporter.length == 0
-    ||
-    !reporterId || reporterId.length == 0
-    ||
-    !details || details.length == 0
-  ) {
-    return false;
+    var required = report_fields[key];
+    if (required) {
+
+      // Check if key is present
+      var index = groups.indexOf(key);
+      if (index > -1) {
+
+        // Check if its not empty
+        var value = groups[index + 1];
+        if (!(value && value.length > 0)) {
+          r = false;
+          break;
+        }
+
+      }
+      // Not found, so stop and fail
+      else {
+        r = false;
+        break;
+      }
+
+    }
+
   }
 
-  return true;
+  return r;
 };
 
 exports.format = (text, caseno, author) => {
-  re_report_format.lastIndex = 0;
+  // Extract keys and values
+  var re = getReportRegEx();
+  re.lastIndex = 0;
+  var groups = re.exec(text);
 
-  var groups = re_report_format.exec(text);
+  var reported = groups[3].trim();
+  var reportedId = groups[6].trim();
+  var offence = groups[9].trim();
+  var reporter = groups[12].trim();
+  var reporterId = groups[15].trim();
+  var details = groups[18].trim();
 
-  var reported = groups[2].trim();
-  var reportedId = groups[4].trim();
-  var offence = groups[6].trim();
-  var reporter = groups[8].trim();
-  var reporterId = groups[10].trim();
-  var details = groups[12].trim();
-
-  if (
-    !reported || reported.length == 0
-    ||
-    !offence || offence.length == 0
-    ||
-    !reporter || reporter.length == 0
-    ||
-    !reporterId || reporterId.length == 0
-    ||
-    !details || details.length == 0
-  ) {
-    return null;
-  }
-
+  // Prepare embed
   const embed = {
-    "description": `Report Case #${caseno}`,
+    "description": `Report Case \`#${caseno}\``,
     "color": 4886754,
     "timestamp": (new Date()).toUTCString(),
     "author": {

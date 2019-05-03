@@ -5,7 +5,7 @@ const reporting = require('../utils/reporting.js');
 exports.execute = (client, message, args) => {
   if (args.length == 1) {
     var title = `You have been helped!`;
-    var msg = "Report format: -\n\n" + reporting.template() + "\n";
+    var msg = "Report format: -\n\n" + reporting.getReportExample() + "\n";
 
     if (client.config.REDIRECT_CHANNELS && client.config.REDIRECT_CHANNELS.length > 0) {
       msg += "\n";
