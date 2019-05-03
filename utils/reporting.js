@@ -1,4 +1,5 @@
 const Discord = require('discord.js');
+const request = require('sync-request');
 
 var report_fields = {
   "Reported Player Name": true,
@@ -80,6 +81,23 @@ exports.validReport2 = (text) => {
   return r;
 };
 
+var resolveSteamId64 = exports.resolveSteamId64 = (input) => {
+  try {
+    var res = request('GET', `https://steamid.io/lookup/${encodeURI(input)}`, {
+      timeout: 3000 // ms
+    });
+
+    var body = res.getBody("utf-8");
+
+    var r = body.match(/\d{17}/g);
+
+    return r[0];
+  } catch (e) {
+    // console.warn(e);
+    return input;
+  }
+}
+
 exports.format = (text, caseno, author) => {
   // Extract keys and values
   var re = getReportRegEx();
@@ -92,6 +110,12 @@ exports.format = (text, caseno, author) => {
   var reporter = groups[12].trim();
   var reporterId = groups[15].trim();
   var details = groups[18].trim();
+
+  reportedId = resolveSteamId64(reportedId);
+  reporterId = resolveSteamId64(reporterId);
+
+  console.log(reportedId);
+  console.log(reporterId);
 
   // Prepare embed
   const embed = {
@@ -115,7 +139,7 @@ exports.format = (text, caseno, author) => {
       },
       {
         "name": "Steam ID",
-        "value": "[" + reportedId + "](https://steamcommunity.com/id/" + reportedId + ")",
+        "value": "[" + reportedId + "](https://steamcommunity.com/profiles/" + reportedId + ")",
         "inline": true
       },
       {
@@ -130,12 +154,12 @@ exports.format = (text, caseno, author) => {
       },
       {
         "name": "Steam ID",
-        "value": "[" + reporterId + "](https://steamcommunity.com/id/" + reporterId + ")",
+        "value": "[" + reporterId + "](https://steamcommunity.com/profiles/" + reporterId + ")",
         "inline": true
       },
       {
         "name": "Reporter Discord",
-        "value": `${author.username}#${author.discriminator}`,
+        "value": `${author.toString()}`,
         "inline": true
       },
       {
