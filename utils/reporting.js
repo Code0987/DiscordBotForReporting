@@ -114,9 +114,6 @@ exports.format = (text, caseno, author) => {
   reportedId = resolveSteamId64(reportedId);
   reporterId = resolveSteamId64(reporterId);
 
-  console.log(reportedId);
-  console.log(reporterId);
-
   // Prepare embed
   const embed = {
     "description": `Report Case \`#${caseno}\``,
