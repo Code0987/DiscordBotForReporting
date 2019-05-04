@@ -2,12 +2,12 @@ const Discord = require('discord.js');
 const request = require('sync-request');
 
 var report_fields = {
-  "Reported Player Name": true,
-  "Steam ID of Reported Player": false,
+  "Reported Player Name": false,
+  "Steam ID of Reported Player": true,
   "Offense": true,
   "Your Steam Name": true,
   "Your Steam ID": true,
-  "Summary & Details": false
+  "Summary & Details": true
 };
 
 var getReportExample = exports.getReportExample = () => {
@@ -115,12 +115,12 @@ exports.format = (text, caseno, author) => {
 
   var missing = "Missing";
 
-  var reported = (groups[3] || missing).trim();
-  var reportedId = (groups[6] || missing).trim();
-  var offence = (groups[9] || missing).trim();
-  var reporter = (groups[12] || missing).trim();
-  var reporterId = (groups[15] || missing).trim();
-  var details = (groups[18] || missing).trim();
+  var reported = ((groups[3] || "").trim() || missing);
+  var reportedId = ((groups[6] || "").trim() || missing);
+  var offence = ((groups[9] || "").trim() || missing);
+  var reporter = ((groups[12] || "").trim() || missing);
+  var reporterId = ((groups[15] || "").trim() || missing);
+  var details = ((groups[18] || "").trim() || missing);
 
   reportedId = resolveSteamId64(reportedId, missing);
   reporterId = resolveSteamId64(reporterId, missing);
