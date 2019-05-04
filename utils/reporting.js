@@ -62,7 +62,7 @@ exports.validReport2 = (text) => {
 
         // Check if its not empty
         var value = groups[index + 1];
-        if (!(value && value.length > 0)) {
+        if (!(value && value.length > 0 && value.trim().length > 0)) {
           r = false;
           break;
         }
@@ -81,8 +81,11 @@ exports.validReport2 = (text) => {
   return r;
 };
 
-var resolveSteamId64 = exports.resolveSteamId64 = (input) => {
+var resolveSteamId64 = exports.resolveSteamId64 = (input, def) => {
   try {
+    if (!input || input.length < 2 || input === def)
+      return input;
+
     var res = request('GET', `https://steamid.io/lookup/${encodeURI(input)}`, {
       timeout: 3000 // ms
     });
@@ -104,15 +107,32 @@ exports.format = (text, caseno, author) => {
   re.lastIndex = 0;
   var groups = re.exec(text);
 
-  var reported = groups[3].trim();
-  var reportedId = groups[6].trim();
-  var offence = groups[9].trim();
-  var reporter = groups[12].trim();
-  var reporterId = groups[15].trim();
-  var details = groups[18].trim();
+  /*
+  for (var i = 0; i < groups.length; i++) {
+    console.log(`${i}: ${groups[i]}`);
+  }
+  */
 
-  reportedId = resolveSteamId64(reportedId);
-  reporterId = resolveSteamId64(reporterId);
+  var missing = "Missing";
+
+  var reported = (groups[3] || missing).trim();
+  var reportedId = (groups[6] || missing).trim();
+  var offence = (groups[9] || missing).trim();
+  var reporter = (groups[12] || missing).trim();
+  var reporterId = (groups[15] || missing).trim();
+  var details = (groups[18] || missing).trim();
+
+  reportedId = resolveSteamId64(reportedId, missing);
+  reporterId = resolveSteamId64(reporterId, missing);
+
+  /*
+  console.log(reported);
+  console.log(reportedId);
+  console.log(offence);
+  console.log(reporter);
+  console.log(reporterId);
+  console.log(details);
+  */
 
   // Prepare embed
   const embed = {
@@ -131,7 +151,7 @@ exports.format = (text, caseno, author) => {
       },
       {
         "name": "Reported Player",
-        "value": reported,
+        "value": `${reported}`,
         "inline": true
       },
       {
@@ -141,12 +161,12 @@ exports.format = (text, caseno, author) => {
       },
       {
         "name": "Offense",
-        "value": offence,
+        "value": `${offence}`,
         "inline": true
       },
       {
         "name": "Reporter",
-        "value": reporter,
+        "value": `${reporter}`,
         "inline": true
       },
       {
@@ -166,7 +186,7 @@ exports.format = (text, caseno, author) => {
       },
       {
         "name": "Summary & Details",
-        "value": details,
+        "value": `${details}`,
         "inline": true
       }
     ]
